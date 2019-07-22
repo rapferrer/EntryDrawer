@@ -19,6 +19,7 @@ def main():
         entries_file = sys.argv[1]
     except:
         print("Give me something to work with here...")
+        print("Run file like \"python randomselector.py [filename.txt]\"")
         exit(1) 
     
     entries = []
