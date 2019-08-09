@@ -18,8 +18,15 @@ import argparse
 # ...
 #
 
+class Entrant:
+    def __init__(self, min, max, entries, name):
+        self.min = min
+        self.max = max
+        self.entries = entries
+        self.name = name
+
 def main(args):
-    entries = []
+    entrants = []
     
     try:
         csv_file = open(str(args.file))
@@ -30,27 +37,42 @@ def main(args):
             csv_reader = csv.reader(csv_file, delimiter=',')
             line_count = 0
             # Fill entries with counts
+            minimum = 0
             for row in csv_reader:
                 if line_count == 0:
                     line_count += 1
                 else:
+                    # Create the entrant object
                     try:
-                        entry = int(row[1],10)
+                        #entry = int(row[1],10)
+                        entries = int(row[1],10)
+                        entrant = Entrant(minimum, minimum + entries, entries, row[0])
+                        minimum = minimum + entries
                     except Exception as e: 
                         print("Expected a number but didn't get one after " + str(row[0]) + " in row " + str(line_count + 1))
                         print("{0}".format(e))
                         exit(2)
-                    # we add row[1] number of entries into entries[] 
-                    for count in range(entry):
-                        entries.append(str(row[0]) + " " + str(count))
+                    # Add them to the array
+                    entrants.append(entrant)
                     line_count += 1
-                    print(row[0] + " " + str(len(entries)))
+                    print(entrant.name + " has " + str(entrant.entries) + " entries")
+                    print("There is currently a total of " + str(entrant.max) + " entries")
     
-        print("Time to select a random entry!")
-        winner = random.randint(0, len(entries))
-        print("Selecting entry number " + str(winner))
-        print("Our winner is " + entries[winner])
-        exit(0)
+        print("Time to select a random entry for our winner!")
+        #winner = random.randint(0, len(entries))
+        winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
+        print("Selecting entry number " + str(winningEntry))
+        for entrant in entrants:
+            if winningEntry < entrant.max:
+                print("Our winner is " + entrant.name)
+                exit(0)
+
+class Entrant:
+    def __init__(self, min, max, entries, name):
+        self.min = min
+        self.max = max
+        self.entries = entries
+        self.name = name
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
