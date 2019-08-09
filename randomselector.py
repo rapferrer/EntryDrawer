@@ -1,6 +1,5 @@
 import csv
 import random
-import sys
 import argparse
 
 # This script takes in a csv file (that has a header) and randomly selects an entry from the total collected entries.
