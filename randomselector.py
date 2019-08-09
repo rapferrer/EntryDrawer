@@ -67,13 +67,6 @@ def main(args):
                 print("Our winner is " + entrant.name)
                 exit(0)
 
-class Entrant:
-    def __init__(self, min, max, entries, name):
-        self.min = min
-        self.max = max
-        self.entries = entries
-        self.name = name
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
     parser.add_argument('file', type = str, help = 'The file/path to be used')
