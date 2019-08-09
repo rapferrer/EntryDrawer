@@ -59,7 +59,6 @@ def main(args):
                     print("There is currently a total of " + str(entrant.max) + " entries")
     
         print("Time to select a random entry for our winner!")
-        #winner = random.randint(0, len(entries))
         winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
         print("Selecting entry number " + str(winningEntry))
         for entrant in entrants:
