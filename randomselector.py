@@ -1,4 +1,10 @@
-# This script takes in a csv file (that has a header) and is in the format:
+import csv
+import random
+import sys
+import argparse
+
+# This script takes in a csv file (that has a header) and randomly selects an entry from the total collected entries.
+# The csv file should be in the following format:
 # 
 # *header row*
 # entrant1, entrant 1's number of entries
@@ -13,43 +19,42 @@
 # ...
 #
 
-def main():
-    entries_file = None 
-    try:
-        entries_file = sys.argv[1]
-    except:
-        print("Give me something to work with here...")
-        print("Run file like \"python randomselector.py [filename.txt]\"")
-        exit(1) 
-    
+def main(args):
     entries = []
-    with open(str(entries_file)) as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        # Fill entries with counts
-        for row in csv_reader:
-            if line_count == 0:
-                line_count += 1
-            else:
-                try:
-                    entry = int(row[1],10)
-                except: 
-                    print("Expected a number but didn't get one after " + str(row[0]) + " in row " + str(line_count + 1))
-                    exit(2)
-                # we add row[1] number of entries into entries[] 
-                for count in range(entry):
-                    entries.append(str(row[0]) + " " + str(count))
-                line_count += 1
-                print(row[0] + " " + str(len(entries)))
     
-    print("Time to select a random entry!")
-    winner = random.randint(0, len(entries))
-    print("Selecting entry number " + str(winner))
-    print("Our winner is " + entries[winner])
-    exit(0)
+    try:
+        csv_file = open(str(args.file))
+    except IOError as ioe:
+        print("Pass in a correct file instead of causing:\n{0}".format(ioe))
+    else:
+        with csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            line_count = 0
+            # Fill entries with counts
+            for row in csv_reader:
+                if line_count == 0:
+                    line_count += 1
+                else:
+                    try:
+                        entry = int(row[1],10)
+                    except Exception as e: 
+                        print("Expected a number but didn't get one after " + str(row[0]) + " in row " + str(line_count + 1))
+                        print("{0}".format(e))
+                        exit(2)
+                    # we add row[1] number of entries into entries[] 
+                    for count in range(entry):
+                        entries.append(str(row[0]) + " " + str(count))
+                    line_count += 1
+                    print(row[0] + " " + str(len(entries)))
+    
+        print("Time to select a random entry!")
+        winner = random.randint(0, len(entries))
+        print("Selecting entry number " + str(winner))
+        print("Our winner is " + entries[winner])
+        exit(0)
 
 if __name__ == "__main__":
-    import csv
-    import random
-    import sys
-    main()
+    parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
+    parser.add_argument('file', type = str, help = 'The file/path to be used')
+    args = parser.parse_args()
+    main(args)
