@@ -57,14 +57,18 @@ def main(args):
                     line_count += 1
                     print(entrant.name + " has " + str(entrant.entries) + " entries")
                     print("There is currently a total of " + str(entrant.max) + " entries")
-    
-        print("Time to select a random entry for our winner!")
-        winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
-        print("Selecting entry number " + str(winningEntry))
-        for entrant in entrants:
-            if winningEntry < entrant.max:
-                print("Our winner is " + entrant.name)
-                exit(0)
+
+        #TODO add call to findWinningEntry
+        print("Our winner is " + findWinningEntry(entrants).name)
+        exit(0)
+
+def findWinningEntry(entrants):
+    print("Time to select a random entry for our winner!")
+    winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
+    print("Selecting entry number " + str(winningEntry))
+    for entrant in entrants:
+        if winningEntry < entrant.max:
+            return entrant
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
