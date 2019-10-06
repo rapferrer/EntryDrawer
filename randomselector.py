@@ -27,7 +27,9 @@ class Entrant:
 
 def main(args):
     entrants = []
-    
+
+    noHeader = args.no_header
+
     try:
         csv_file = open(str(args.file))
     except IOError as ioe:
@@ -39,12 +41,11 @@ def main(args):
             # Fill entries with counts
             minimum = 0
             for row in csv_reader:
-                if line_count == 0:
+                if not noHeader and (line_count == 0):
                     line_count += 1
                 else:
                     # Create the entrant object
                     try:
-                        #entry = int(row[1],10)
                         entries = int(row[1],10)
                         entrant = Entrant(minimum, minimum + entries, entries, row[0])
                         minimum = minimum + entries
@@ -58,12 +59,13 @@ def main(args):
                     print(entrant.name + " has " + str(entrant.entries) + " entries")
                     print("There is currently a total of " + str(entrant.max) + " entries")
     if len(entrants) > 0:
-            findWinningEntry(entrants)
+        findWinningEntry(entrants)
     else:
         print("No entrants were entered!")
     exit(0)
 
 def findWinningEntry(entrants):
+    """Takes in a list of Entrant objects, then finds a random entry in the list and selects it as the winner"""
     print("Time to select a random entry for our winner!")
     winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
     print("Selecting entry number " + str(winningEntry))
@@ -74,6 +76,7 @@ def findWinningEntry(entrants):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
-    parser.add_argument('file', type = str, help = 'The file/path to be used')
+    parser.add_argument('file', type=str, help='The file/path to be used.')
+    parser.add_argument('--no_header', action='store_true', help = 'Signal if there isn\'t a header line in the csv. Default is to assume that there is a header line')
     args = parser.parse_args()
     main(args)
