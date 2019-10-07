@@ -12,7 +12,7 @@ Run it like:
 
 ## Ideas for Improvement
 - ~~Account for csv files with OR without a header~~
-- Select multiple entrants in one pass through
-    - Do this by removing entrants after they are selected
-    - Or do this by ignoring previously selected entrants
+- ~~Select multiple entrants in one pass through~~
+    - ~~Do this by removing entrants after they are selected~~
+    - ~~Or do this by ignoring previously selected entrants~~
 - Adopt PEP 257 docstring conventions
