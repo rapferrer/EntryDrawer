@@ -15,5 +15,4 @@ Run it like:
 - Select multiple entrants in one pass through
     - Do this by removing entrants after they are selected
     - Or do this by ignoring previously selected entrants
-- Refactor main() more...
 - Adopt PEP 257 docstring conventions

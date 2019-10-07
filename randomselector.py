@@ -2,8 +2,8 @@ import csv
 import random
 import argparse
 
-# This script takes in a csv file (that has a header) and randomly selects an entry from the total collected entries.
-# The csv file should be in the following format:
+# This script takes in a csv file and randomly selects an entry from the total collected entries.
+# The csv file doesn't have to have a header row, but the assumed format of the .csv file is:
 # 
 # *header row*
 # entrant1, entrant 1's number of entries
@@ -19,17 +19,32 @@ import argparse
 #
 
 class Entrant:
+    """Object represents an individual in a competition with a number of entries"""
     def __init__(self, min, max, entries, name):
         self.min = min
         self.max = max
         self.entries = entries
         self.name = name
 
-def main(args):
+def main():
+    args = takeInArgs()
+    entrants = buildEntrants(args)
+
+    if len(entrants) > 0:
+        findWinningEntry(entrants)
+    else:
+        print("No entrants were entered!")
+    exit(0)
+
+def takeInArgs():
+    parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
+    parser.add_argument('file', type=str, help='The file/path to be used.')
+    parser.add_argument('--no_header', action='store_true', help = 'Signal if there isn\'t a header line in the csv. Default is to assume that there is a header line')
+    return parser.parse_args()
+
+def buildEntrants(args):
+    """Using the passed in args, build out and return an array of Entrant objects"""
     entrants = []
-
-    noHeader = args.no_header
-
     try:
         csv_file = open(str(args.file))
     except IOError as ioe:
@@ -41,7 +56,7 @@ def main(args):
             # Fill entries with counts
             minimum = 0
             for row in csv_reader:
-                if not noHeader and (line_count == 0):
+                if not args.no_header and (line_count == 0):
                     line_count += 1
                 else:
                     # Create the entrant object
@@ -58,11 +73,7 @@ def main(args):
                     line_count += 1
                     print(entrant.name + " has " + str(entrant.entries) + " entries")
                     print("There is currently a total of " + str(entrant.max) + " entries")
-    if len(entrants) > 0:
-        findWinningEntry(entrants)
-    else:
-        print("No entrants were entered!")
-    exit(0)
+    return entrants
 
 def findWinningEntry(entrants):
     """Takes in a list of Entrant objects, then finds a random entry in the list and selects it as the winner"""
@@ -75,8 +86,4 @@ def findWinningEntry(entrants):
             return
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
-    parser.add_argument('file', type=str, help='The file/path to be used.')
-    parser.add_argument('--no_header', action='store_true', help = 'Signal if there isn\'t a header line in the csv. Default is to assume that there is a header line')
-    args = parser.parse_args()
-    main(args)
+    main()
