@@ -16,6 +16,6 @@ Run it like:
     - ~~Do this by removing entrants after they are selected~~
     - ~~Or do this by ignoring previously selected entrants~~
 - Adopt [PEP 257 docstring conventions](https://www.python.org/dev/peps/pep-0257/)
-- Option for less verbose output
-    - Currently we print a lot. Good for verification but an option for only printing out some status text/the winner would be nice.
+- ~Option for less verbose output~
+    - ~Currently we print a lot. Good for verification but an option for only printing out some status text/the winner would be nice.~
 - Create a GUI

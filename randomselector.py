@@ -45,7 +45,7 @@ def takeInArgs():
     parser.add_argument('--no_header', action='store_true', help = 'Signal if there isn\'t a header line in the csv. Default is to assume that there is a header line')
     parser.add_argument('--number_of_winners', type=int, default=1, help='The number of winners to select. Default is 1')
     parser.add_argument('--without_removal', action='store_true', help='Choose multiple winners without removing the winners from the list of entrants. Default is false')
-    parser.add_argument('--quiet', action='store_true', help='Print less to stdout')
+    parser.add_argument('-q', '--quiet', action='store_true', help='Print less to stdout')
     return parser.parse_args()
 
 def buildEntrants(args):
