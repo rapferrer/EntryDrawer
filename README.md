@@ -8,7 +8,9 @@ The script takes a .csv file as a command-line arg and then parses through it to
 Finally, it uses `random` to select an index in that array to choose the winner.
 
 Run it like:
-`python randomselector.py file.txt`
+`python randomselector.py file.csv`
+Or:
+`./randomselector.py file.csv`
 
 ## Ideas for Improvement
 - ~~Account for csv files with OR without a header~~
