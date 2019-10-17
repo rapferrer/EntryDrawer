@@ -103,16 +103,16 @@ def findWinningEntriesWithRemoval(entrants, numberOfWinners):
 
 def removeWinner(entrants, winner):
     """Returns a list of Entrant objects minus the passed in Entrant"""
-    reducedEntrants = entrants.remove(winner)
+    entrants.remove(winner)
 
     # Reset the min/max values of the remaining entrant objects
     minimum = 0
-    for entrant in reducedEntrants:
-        if minimum != entrant.minimum:
+    for entrant in entrants:
+        if minimum != entrant.min:
             entrant.min = minimum
             entrant.max = minimum + entrant.entries
         minimum = entrant.max
-    return reducedEntrants
+    return entrants
 
 def findWinningEntriesWithoutRemoval(entrants, numberOfWinners):
     """Finds winners in the entrants list without removing them from the list as they are selected"""
