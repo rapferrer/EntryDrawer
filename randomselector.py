@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Takes in a list of entrants from a .csv and finds the winner or winners."""
 
 import csv
 import random
@@ -22,8 +23,10 @@ import argparse
 
 
 class Entrant:
-    """Object represents an individual in a competition with a number of entries"""
+    """Object represents an individual in a competition with a number of entries."""
+
     def __init__(self, min, max, entries, name):
+        """Define the Entrant class."""
         self.min = min
         self.max = max
         self.entries = entries
@@ -31,6 +34,7 @@ class Entrant:
 
 
 def main():
+    """Acts as the overall controller of the script."""
     args = takeInArgs()
     entrants = buildEntrants(args)
 
@@ -45,6 +49,7 @@ def main():
 
 
 def takeInArgs():
+    """Take in arguments from the command line."""
     parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
     parser.add_argument('file', type=str, help='The file/path to be used.')
     parser.add_argument('--no_header', action='store_true', help='Signal if there isn\'t a header\
@@ -58,7 +63,7 @@ def takeInArgs():
 
 
 def buildEntrants(args):
-    """Using the passed in args, build out and return an array of Entrant objects"""
+    """Use the passed in args to build out and return an array of Entrant objects."""
     entrants = []
     try:
         csv_file = open(str(args.file))
@@ -94,8 +99,8 @@ def buildEntrants(args):
 
 
 def findWinningEntry(entrants, withRemoval):
-    """Takes in a list of Entrant objects, then finds a random entry in the list and selects it as\
-         the winner"""
+    """Take in a list of Entrant objects, then find a random entry in the list and selects it as\
+    the winner."""
     print("Time to select a random entry for our winner!")
     winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
     print("Selecting entry number " + str(winningEntry))
@@ -107,7 +112,7 @@ def findWinningEntry(entrants, withRemoval):
 
 
 def findWinningEntriesWithRemoval(entrants, numberOfWinners):
-    """Find x winning entries from the list of entrants(x being the second arg passed in)"""
+    """Find x winning entries from the list of entrants(x being the second arg passed in)."""
     winner = findWinningEntry(entrants, True)
     if (numberOfWinners > 1):
         reducedEntrants = removeWinner(entrants, winner)
@@ -116,7 +121,7 @@ def findWinningEntriesWithRemoval(entrants, numberOfWinners):
 
 
 def removeWinner(entrants, winner):
-    """Returns a list of Entrant objects minus the passed in Entrant"""
+    """Return a list of Entrant objects minus the passed in Entrant."""
     entrants.remove(winner)
 
     # Reset the min/max values of the remaining entrant objects
@@ -130,8 +135,8 @@ def removeWinner(entrants, winner):
 
 
 def findWinningEntriesWithoutRemoval(entrants, numberOfWinners):
-    """Finds winners in the entrants list without removing them from the list as they are\
-         selected"""
+    """Find winners in the entrants list without removing them from the list as they are\
+    selected."""
     winnerEntrants = []
     x = 0
     while x < numberOfWinners:
@@ -146,7 +151,7 @@ def findWinningEntriesWithoutRemoval(entrants, numberOfWinners):
 
 
 def printWinners(winners):
-    """Print a list of Entrant objects"""
+    """Print a list of Entrant objects."""
     print("Here are our winners!")
     for winner in winners:
         print(winner.name)
