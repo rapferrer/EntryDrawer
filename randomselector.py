@@ -6,19 +6,20 @@ import argparse
 
 # This script takes in a csv file and randomly selects an entry from the total collected entries.
 # The csv file doesn't have to have a header row, but the assumed format of the .csv file is:
-# 
+#
 # *header row*
 # entrant1, entrant 1's number of entries
-# entrant2, entrant 2's number of entries 
+# entrant2, entrant 2's number of entries
 # etc...
 #
-# ex. 
+# ex.
 # Name, Entries
 # Ryan, 23
 # Chad, 45
 # Katherine, 117
 # ...
 #
+
 
 class Entrant:
     """Object represents an individual in a competition with a number of entries"""
@@ -27,6 +28,7 @@ class Entrant:
         self.max = max
         self.entries = entries
         self.name = name
+
 
 def main():
     args = takeInArgs()
@@ -41,14 +43,19 @@ def main():
         print("No entrants were entered!")
     exit(0)
 
+
 def takeInArgs():
     parser = argparse.ArgumentParser(description='Lets randomly select an entry from a csv file...')
     parser.add_argument('file', type=str, help='The file/path to be used.')
-    parser.add_argument('--no_header', action='store_true', help = 'Signal if there isn\'t a header line in the csv. Default is to assume that there is a header line')
-    parser.add_argument('--number_of_winners', type=int, default=1, help='The number of winners to select. Default is 1')
-    parser.add_argument('--without_removal', action='store_true', help='Choose multiple winners without removing the winners from the list of entrants. Default is false')
+    parser.add_argument('--no_header', action='store_true', help='Signal if there isn\'t a header\
+     line in the csv. Default is to assume that there is a header line')
+    parser.add_argument('--number_of_winners', type=int, default=1, help='The number of winners to\
+     select. Default is 1')
+    parser.add_argument('--without_removal', action='store_true', help='Choose multiple winners\
+         without removing the winners from the list of entrants. Default is false')
     parser.add_argument('-q', '--quiet', action='store_true', help='Print less to stdout')
     return parser.parse_args()
+
 
 def buildEntrants(args):
     """Using the passed in args, build out and return an array of Entrant objects"""
@@ -69,11 +76,12 @@ def buildEntrants(args):
                 else:
                     # Create the entrant object
                     try:
-                        entries = int(row[1],10)
+                        entries = int(row[1], 10)
                         entrant = Entrant(minimum, minimum + entries, entries, row[0])
                         minimum = minimum + entries
-                    except Exception as e: 
-                        print("Expected a number but didn't get one after " + str(row[0]) + " in row " + str(line_count + 1))
+                    except Exception as e:
+                        print("Expected a number but didn't get one after " + str(row[0]) + " in\
+                             row " + str(line_count + 1))
                         print("{0}".format(e))
                         exit(2)
                     # Add them to the array
@@ -84,8 +92,10 @@ def buildEntrants(args):
                         print("There is currently a total of " + str(entrant.max) + " entries")
     return entrants
 
+
 def findWinningEntry(entrants, withRemoval):
-    """Takes in a list of Entrant objects, then finds a random entry in the list and selects it as the winner"""
+    """Takes in a list of Entrant objects, then finds a random entry in the list and selects it as\
+         the winner"""
     print("Time to select a random entry for our winner!")
     winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
     print("Selecting entry number " + str(winningEntry))
@@ -95,6 +105,7 @@ def findWinningEntry(entrants, withRemoval):
                 print("Our winner is " + (entrant).name)
             return entrant
 
+
 def findWinningEntriesWithRemoval(entrants, numberOfWinners):
     """Find x winning entries from the list of entrants(x being the second arg passed in)"""
     winner = findWinningEntry(entrants, True)
@@ -102,6 +113,7 @@ def findWinningEntriesWithRemoval(entrants, numberOfWinners):
         reducedEntrants = removeWinner(entrants, winner)
         findWinningEntriesWithRemoval(reducedEntrants, numberOfWinners - 1)
     return winner
+
 
 def removeWinner(entrants, winner):
     """Returns a list of Entrant objects minus the passed in Entrant"""
@@ -116,8 +128,10 @@ def removeWinner(entrants, winner):
         minimum = entrant.max
     return entrants
 
+
 def findWinningEntriesWithoutRemoval(entrants, numberOfWinners):
-    """Finds winners in the entrants list without removing them from the list as they are selected"""
+    """Finds winners in the entrants list without removing them from the list as they are\
+         selected"""
     winnerEntrants = []
     x = 0
     while x < numberOfWinners:
@@ -130,12 +144,14 @@ def findWinningEntriesWithoutRemoval(entrants, numberOfWinners):
     printWinners(winnerEntrants)
     return
 
+
 def printWinners(winners):
     """Print a list of Entrant objects"""
     print("Here are our winners!")
     for winner in winners:
         print(winner.name)
     return
+
 
 if __name__ == "__main__":
     main()
