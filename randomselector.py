@@ -81,8 +81,11 @@ def buildEntrants(args):
                 else:
                     # Create the entrant object
                     try:
+                        strippedName = row[0].strip()
+                        if checkIfUnique(strippedName, entrants):
+                            continue
                         entries = int(row[1], 10)
-                        entrant = Entrant(minimum, minimum + entries, entries, row[0])
+                        entrant = Entrant(minimum, minimum + entries, entries, strippedName)
                         minimum = minimum + entries
                     except Exception as e:
                         print("Expected a number but didn't get one after " + str(row[0]) + " in\
@@ -96,6 +99,17 @@ def buildEntrants(args):
                         print(entrant.name + " has " + str(entrant.entries) + " entries")
                         print("There is currently a total of " + str(entrant.max) + " entries")
     return entrants
+
+
+def checkIfUnique(name, entrants):
+    """Check to see if a name already belongs to an entrant in the list of entrants."""
+    notUnique = False
+    for existingEntrant in entrants:
+        if name == existingEntrant.name:
+            print(name + " already exists! Skipping")
+            notUnique = True
+            break
+    return notUnique
 
 
 def findWinningEntry(entrants, withRemoval):
