@@ -76,7 +76,7 @@ def buildEntrants(args):
             # Fill entries with counts
             minimum = 0
             for row in csv_reader:
-                if not args.no_header and (line_count == 0):
+                if (line_count == 0) and not args.no_header:
                     line_count += 1
                 else:
                     # Create the entrant object
