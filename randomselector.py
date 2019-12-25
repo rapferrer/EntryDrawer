@@ -82,7 +82,7 @@ def buildEntrants(args):
                     # Create the entrant object
                     try:
                         strippedName = row[0].strip()
-                        if checkIfUnique(strippedName, entrants):
+                        if not isUnique(strippedName, entrants):
                             continue
                         entries = int(row[1], 10)
                         entrant = Entrant(minimum, minimum + entries, entries, strippedName)
@@ -101,15 +101,15 @@ def buildEntrants(args):
     return entrants
 
 
-def checkIfUnique(name, entrants):
+def isUnique(name, entrants):
     """Check to see if a name already belongs to an entrant in the list of entrants."""
-    notUnique = False
+    unique = True
     for existingEntrant in entrants:
         if name == existingEntrant.name:
             print(name + " already exists! Skipping")
-            notUnique = True
+            unique = False
             break
-    return notUnique
+    return unique
 
 
 def findWinningEntry(entrants, withRemoval):
