@@ -73,7 +73,6 @@ def buildEntrants(args):
         with csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             line_count = 0
-            # Fill entries with counts
             minimum = 0
             for row in csv_reader:
                 if (line_count == 0) and not args.no_header:
@@ -81,20 +80,26 @@ def buildEntrants(args):
                 else:
                     # Create the entrant object
                     try:
+                        line_count += 1
                         strippedName = row[0].strip()
                         if not isUnique(strippedName, entrants):
                             continue
                         entries = int(row[1], 10)
                         entrant = Entrant(minimum, minimum + entries, entries, strippedName)
                         minimum = minimum + entries
-                    except Exception as e:
-                        print("\nOops! Expected a number but didn't get one after " +
-                              str(row[0]) + " in row " + str(line_count + 1))
-                        print("Error: {0}\n".format(e))
+                    except ValueError as ve:
+                        # Catches non-integer characters/sequences
+                        print("\nOops! Expected an integer (whole number) but didn't get one "
+                              "after " + str(row[0]) + " in row " + str(line_count))
+                        print("ValueError: {0}\n".format(ve))
                         continue
-                    # Add them to the array
+                    except IndexError as ie:
+                        # Catches emtpy lines
+                        print("\nOops! Expected info on line " + str(line_count) + " but found "
+                              "nothing!")
+                        print("IndexError: {0}\n".format(ie))
+                        continue
                     entrants.append(entrant)
-                    line_count += 1
                     if not args.quiet:
                         print(entrant.name + " has " + str(entrant.entries) + " entries")
                         print("There is currently a total of " + str(entrant.max) + " entries")
