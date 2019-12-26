@@ -88,10 +88,10 @@ def buildEntrants(args):
                         entrant = Entrant(minimum, minimum + entries, entries, strippedName)
                         minimum = minimum + entries
                     except Exception as e:
-                        print("Expected a number but didn't get one after " + str(row[0]) + " in\
-                             row " + str(line_count + 1))
-                        print("{0}".format(e))
-                        exit(2)
+                        print("\nOops! Expected a number but didn't get one after " +
+                              str(row[0]) + " in row " + str(line_count + 1))
+                        print("Error: {0}\n".format(e))
+                        continue
                     # Add them to the array
                     entrants.append(entrant)
                     line_count += 1
