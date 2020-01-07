@@ -62,20 +62,26 @@ def takeInArgs():
     return parser.parse_args()
 
 
-def buildEntrants(args):
+def buildEntrants(args=None, fileName=None):
     """Use the passed in args to build out and return an array of Entrant objects."""
     entrants = []
     try:
-        csv_file = open(str(args.file))
+        if args is not None:
+            csvFile = open(str(args.file))
+        else:
+            csvFile = open(str(fileName))
     except IOError as ioe:
         print("Pass in a correct file instead of causing:\n{0}".format(ioe))
     else:
-        with csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
+        with csvFile:
+            csv_reader = csv.reader(csvFile, delimiter=',')
             line_count = 0
             minimum = 0
             for row in csv_reader:
-                if (line_count == 0) and not args.no_header:
+                if args is not None:
+                    if (line_count == 0) and not args.no_header:
+                        line_count += 1
+                elif (line_count == 0):
                     line_count += 1
                 else:
                     # Create the entrant object
@@ -100,9 +106,10 @@ def buildEntrants(args):
                         print("IndexError: {0}\n".format(ie))
                         continue
                     entrants.append(entrant)
-                    if not args.quiet:
-                        print(entrant.name + " has " + str(entrant.entries) + " entries")
-                        print("There is currently a total of " + str(entrant.max) + " entries")
+                    if args is not None:
+                        if not args.quiet:
+                            print(entrant.name + " has " + str(entrant.entries) + " entries")
+                            print("There is currently a total of " + str(entrant.max) + " entries")
     return entrants
 
 
