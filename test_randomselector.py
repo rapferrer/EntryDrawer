@@ -4,7 +4,9 @@
 
 import csv
 import io
+import os
 import random
+from randomselector import buildEntrants
 import string
 import unittest
 
@@ -24,11 +26,15 @@ class test_randomselector(unittest.TestCase):
                 randEntries = random.randint(1, 300)
                 writer.writerow([str(randName), str(randEntries)])
             csvFileContents = output.getvalue()
-        self.csvFile = open("testFile", "w")
-        self.csvFile.write(csvFileContents)
+        csvFile = open("testFile.csv", "w")
+        with csvFile:
+            csvFile.write(csvFileContents)
+        self.entrants = buildEntrants(fileName=csvFile)
 
-    def test_removeWinner(self):
-        """Test the removeWinner() function."""
+    @classmethod
+    def tearDownClass(self):
+        """Remove created file."""
+        os.remove("testFile.csv")
 
 
 def generate_random_entry_name(size=6, chars=string.ascii_uppercase + string.digits):
