@@ -126,7 +126,7 @@ def isUnique(name, entrants):
 
 
 def selectWinner(entrants):
-    """Select a winner from the passed in entrants."""
+    """Select a winner at random from the passed in entrants."""
     winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
     for entrant in entrants:
         if winningEntry < entrant.max:
