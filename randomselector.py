@@ -37,12 +37,14 @@ def main():
     """Acts as the overall controller of the script."""
     args = takeInArgs()
     entrants = buildEntrants(args)
+    winners = []
 
     if len(entrants) > 0:
-        if args.without_removal:
-            findWinningEntriesWithoutRemoval(entrants, args.number_of_winners)
-        else:
-            findWinningEntriesWithRemoval(entrants, args.number_of_winners)
+        for x in range(args.number_of_winners):
+            selectedWinner = selectWinner(entrants)
+            winners.append(selectedWinner)
+            entrants = removeWinner(entrants, selectedWinner)
+        printWinners(winners)
     else:
         print("No entrants were entered!")
     exit(0)
@@ -56,8 +58,6 @@ def takeInArgs():
      line in the csv. Default is to assume that there is a header line')
     parser.add_argument('--number_of_winners', type=int, default=1, help='The number of winners to\
      select. Default is 1')
-    parser.add_argument('--without_removal', action='store_true', help='Choose multiple winners\
-         without removing the winners from the list of entrants. Default is false')
     parser.add_argument('-q', '--quiet', action='store_true', help='Print less to stdout')
     return parser.parse_args()
 
@@ -81,35 +81,36 @@ def buildEntrants(args=None, fileName=None):
                 if args is not None:
                     if (line_count == 0) and not args.no_header:
                         line_count += 1
-                elif (line_count == 0):
+                        continue
+                elif args is None and line_count == 0:
                     line_count += 1
-                else:
-                    # Create the entrant object
-                    try:
-                        line_count += 1
-                        strippedName = row[0].strip()
-                        if not isUnique(strippedName, entrants):
-                            continue
-                        entries = int(row[1], 10)
-                        entrant = Entrant(minimum, minimum + entries, entries, strippedName)
-                        minimum = minimum + entries
-                    except ValueError as ve:
-                        # Catches non-integer characters/sequences
-                        print("\nOops! Expected an integer (whole number) but didn't get one "
-                              "after " + str(row[0]) + " in row " + str(line_count))
-                        print("ValueError: {0}\n".format(ve))
+                    continue
+                # Create the entrant object
+                try:
+                    strippedName = row[0].strip()
+                    if not isUnique(strippedName, entrants):
                         continue
-                    except IndexError as ie:
-                        # Catches emtpy lines
-                        print("\nOops! Expected info on line " + str(line_count) + " but found "
-                              "nothing!")
-                        print("IndexError: {0}\n".format(ie))
-                        continue
-                    entrants.append(entrant)
-                    if args is not None:
-                        if not args.quiet:
-                            print(entrant.name + " has " + str(entrant.entries) + " entries")
-                            print("There is currently a total of " + str(entrant.max) + " entries")
+                    entries = int(row[1], 10)
+                    entrant = Entrant(minimum, minimum + entries, entries, strippedName)
+                    minimum = minimum + entries
+                except ValueError as ve:
+                    # Catches non-integer characters/sequences
+                    print("\nOops! Expected an integer (whole number) but didn't get one "
+                          "after " + str(row[0]) + " in row " + str(line_count + 1))
+                    print("ValueError: {0}\n".format(ve))
+                    continue
+                except IndexError as ie:
+                    # Catches emtpy lines
+                    print("\nOops! Expected info on line " + str(line_count + 1) + " but found "
+                          "nothing!")
+                    print("IndexError: {0}\n".format(ie))
+                    continue
+                entrants.append(entrant)
+                line_count += 1
+                if args is not None:
+                    if not args.quiet:
+                        print(entrant.name + " has " + str(entrant.entries) + " entries")
+                        print("There is currently a total of " + str(entrant.max) + " entries")
     return entrants
 
 
@@ -124,26 +125,12 @@ def isUnique(name, entrants):
     return unique
 
 
-def findWinningEntry(entrants, withRemoval):
-    """Take in a list of Entrant objects, then find a random entry in the list and selects it as\
-    the winner."""
-    print("Time to select a random entry for our winner!")
+def selectWinner(entrants):
+    """Select a winner from the passed in entrants."""
     winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
-    print("Selecting entry number " + str(winningEntry))
     for entrant in entrants:
         if winningEntry < entrant.max:
-            if withRemoval:
-                print("Our winner is " + (entrant).name)
             return entrant
-
-
-def findWinningEntriesWithRemoval(entrants, numberOfWinners):
-    """Find x winning entries from the list of entrants(x being the second arg passed in)."""
-    winner = findWinningEntry(entrants, True)
-    if (numberOfWinners > 1):
-        reducedEntrants = removeWinner(entrants, winner)
-        findWinningEntriesWithRemoval(reducedEntrants, numberOfWinners - 1)
-    return winner
 
 
 def removeWinner(entrants, winner):
@@ -158,22 +145,6 @@ def removeWinner(entrants, winner):
             entrant.max = minimum + entrant.entries
         minimum = entrant.max
     return entrants
-
-
-def findWinningEntriesWithoutRemoval(entrants, numberOfWinners):
-    """Find winners in the entrants list without removing them from the list as they are\
-    selected."""
-    winnerEntrants = []
-    x = 0
-    while x < numberOfWinners:
-        winner = findWinningEntry(entrants, False)
-        if winner not in winnerEntrants:
-            winnerEntrants.append(winner)
-            x += 1
-        else:
-            print("Oops. We selected " + winner.name + " a second time! Drawing again!")
-    printWinners(winnerEntrants)
-    return
 
 
 def printWinners(winners):
