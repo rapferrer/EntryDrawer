@@ -6,20 +6,24 @@ import random
 import argparse
 import json
 
-# This script takes in a csv file and randomly selects an entry from the total collected entries.
+# This script takes in a csv or json file and randomly selects an entry from the total collected
+# entries.
+#
 # The csv file doesn't have to have a header row, but the assumed format of the .csv file is:
 #
-# *header row*
-# entrant1, entrant 1's number of entries
-# entrant2, entrant 2's number of entries
-# etc...
-#
-# ex.
 # Name, Entries
-# Ryan, 23
-# Chad, 45
-# Katherine, 117
+# Ryan P., 23
 # ...
+#
+# The assumed format of the .json file is:
+#
+# {
+#    "entrants" : [
+#        {
+#            "name" : "Ryan P.",
+#            "entries" : 37
+#        },
+#        ...
 #
 
 
