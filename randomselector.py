@@ -4,6 +4,7 @@
 import csv
 import random
 import argparse
+import json
 
 # This script takes in a csv file and randomly selects an entry from the total collected entries.
 # The csv file doesn't have to have a header row, but the assumed format of the .csv file is:
@@ -36,7 +37,10 @@ class Entrant:
 def main():
     """Acts as the overall controller of the script."""
     args = takeInArgs()
-    entrants = buildEntrants(args)
+    if args.json:
+        entrants = buildEntrantsJson(args)
+    else:
+        entrants = buildEntrantsTxt(args)
 
     if len(entrants) > 0:
         if args.without_removal:
@@ -59,11 +63,13 @@ def takeInArgs():
     parser.add_argument('--without_removal', action='store_true', help='Choose multiple winners\
          without removing the winners from the list of entrants. Default is false')
     parser.add_argument('-q', '--quiet', action='store_true', help='Print less to stdout')
+    parser.add_argument('-j', '--json', action='store_true', help='Read entries from a JSON file')
     return parser.parse_args()
 
 
-def buildEntrants(args):
-    """Use the passed in args to build out and return an array of Entrant objects."""
+def buildEntrantsTxt(args):
+    """Use the passed in args to build out and return an array of Entrant objects from a .txt
+    file."""
     entrants = []
     try:
         csv_file = open(str(args.file))
@@ -103,6 +109,40 @@ def buildEntrants(args):
                     if not args.quiet:
                         print(entrant.name + " has " + str(entrant.entries) + " entries")
                         print("There is currently a total of " + str(entrant.max) + " entries")
+    return entrants
+
+
+def buildEntrantsJson(args=None):
+    """Use the passed in args to build out and return an array of Entrant objects from a .json
+    file."""
+    entrants = []
+    try:
+        jsonFile = open(str(args.file))
+    except IOError as ioe:
+        print("Pass in a correct file instead of causing:\n{0}".format(ioe))
+    else:
+        with jsonFile:
+            minimum = 0
+            data = json.load(jsonFile)
+            for jsonObject in data['entrants']:
+                # Create the entrant object
+                try:
+                    name = jsonObject['name']
+                    if not isUnique(name, entrants):
+                        continue
+                    entries = int(jsonObject['entries'])
+                    entrant = Entrant(minimum, minimum + entries, entries, name)
+                    minimum = minimum + entries
+                except ValueError as ve:
+                    # Catches non-integer characters/sequences
+                    print("\nOops! Expected an integer (whole number) but didn't get one "
+                          "with " + name)
+                    print("ValueError: {0}\n".format(ve))
+                    continue
+                entrants.append(entrant)
+                if not args.quiet:
+                    print(entrant.name + " has " + str(entrant.entries) + " entries")
+                    print("There is currently a total of " + str(entrant.max) + " entries")
     return entrants
 
 
