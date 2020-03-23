@@ -4,21 +4,26 @@
 import csv
 import random
 import argparse
+import json
 
-# This script takes in a csv file and randomly selects an entry from the total collected entries.
+# This script takes in a csv or json file and randomly selects an entry from the total collected
+# entries.
+#
 # The csv file doesn't have to have a header row, but the assumed format of the .csv file is:
 #
-# *header row*
-# entrant1, entrant 1's number of entries
-# entrant2, entrant 2's number of entries
-# etc...
-#
-# ex.
 # Name, Entries
-# Ryan, 23
-# Chad, 45
-# Katherine, 117
+# Ryan P., 23
 # ...
+#
+# The assumed format of the .json file is:
+#
+# {
+#    "entrants" : [
+#        {
+#            "name" : "Ryan P.",
+#            "entries" : 37
+#        },
+#        ...
 #
 
 
@@ -36,8 +41,10 @@ class Entrant:
 def main():
     """Acts as the overall controller of the script."""
     args = takeInArgs()
-    entrants = buildEntrants(args)
-    winners = []
+    if args.json:
+        entrants = buildEntrantsJson(args)
+    else:
+        entrants = buildEntrantsTxt(args)
 
     if len(entrants) > 0:
         for x in range(args.number_of_winners):
@@ -59,11 +66,13 @@ def takeInArgs():
     parser.add_argument('--number_of_winners', type=int, default=1, help='The number of winners to\
      select. Default is 1')
     parser.add_argument('-q', '--quiet', action='store_true', help='Print less to stdout')
+    parser.add_argument('-j', '--json', action='store_true', help='Read entries from a JSON file')
     return parser.parse_args()
 
 
-def buildEntrants(args=None, fileName=None):
-    """Use the passed in args to build out and return an array of Entrant objects."""
+def buildEntrantsTxt(args):
+    """Use the passed in args to build out and return an array of Entrant objects from a .txt
+    file."""
     entrants = []
     try:
         if args is not None:
@@ -111,6 +120,40 @@ def buildEntrants(args=None, fileName=None):
                     if not args.quiet:
                         print(entrant.name + " has " + str(entrant.entries) + " entries")
                         print("There is currently a total of " + str(entrant.max) + " entries")
+    return entrants
+
+
+def buildEntrantsJson(args=None):
+    """Use the passed in args to build out and return an array of Entrant objects from a .json
+    file."""
+    entrants = []
+    try:
+        jsonFile = open(str(args.file))
+    except IOError as ioe:
+        print("Pass in a correct file instead of causing:\n{0}".format(ioe))
+    else:
+        with jsonFile:
+            minimum = 0
+            data = json.load(jsonFile)
+            for jsonObject in data['entrants']:
+                # Create the entrant object
+                try:
+                    name = jsonObject['name']
+                    if not isUnique(name, entrants):
+                        continue
+                    entries = int(jsonObject['entries'])
+                    entrant = Entrant(minimum, minimum + entries, entries, name)
+                    minimum = minimum + entries
+                except ValueError as ve:
+                    # Catches non-integer characters/sequences
+                    print("\nOops! Expected an integer (whole number) but didn't get one "
+                          "with " + name)
+                    print("ValueError: {0}\n".format(ve))
+                    continue
+                entrants.append(entrant)
+                if not args.quiet:
+                    print(entrant.name + " has " + str(entrant.entries) + " entries")
+                    print("There is currently a total of " + str(entrant.max) + " entries")
     return entrants
 
 
