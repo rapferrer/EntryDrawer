@@ -2,8 +2,7 @@
 
 from argparse import ArgumentParser
 from randomselector import (
-    buildEntrantsJson,
-    buildEntrantsTxt,
+    buildEntrants,
     findWinningEntriesWithoutRemoval,
     findWinningEntriesWithRemoval
 )
@@ -33,10 +32,8 @@ from randomselector import (
 def main():
     """Acts as the overall controller of the script."""
     args = takeInArgs()
-    if args.json:
-        entrants = buildEntrantsJson(args)
-    else:
-        entrants = buildEntrantsTxt(args)
+    
+    entrants = buildEntrants(args)
 
     if len(entrants) > 0:
         if args.without_removal:
@@ -59,7 +56,6 @@ def takeInArgs():
     parser.add_argument('--without_removal', action='store_true', help='Choose multiple winners\
          without removing the winners from the list of entrants. Default is false')
     parser.add_argument('-q', '--quiet', action='store_true', help='Print less to stdout')
-    parser.add_argument('-j', '--json', action='store_true', help='Read entries from a JSON file')
     return parser.parse_args()
 
 

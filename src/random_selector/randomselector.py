@@ -8,6 +8,22 @@ import random
 from entrant import Entrant
 
 
+JSON = "json"
+CSV = "csv"
+
+
+def buildEntrants(args):
+    filename = args.file
+    file_type = filename.split(".")[-1]
+    
+    if file_type == JSON:
+        entrants = buildEntrantsJson(args)
+    else:
+        entrants = buildEntrantsTxt(args)
+    
+    return entrants
+
+
 def buildEntrantsTxt(args):
     """Use the passed in args to build out and return an array of Entrant objects from a .txt
     file."""
@@ -50,6 +66,7 @@ def buildEntrantsTxt(args):
                     if not args.quiet:
                         print(entrant.name + " has " + str(entrant.entries) + " entries")
                         print("There is currently a total of " + str(entrant.max) + " entries")
+    
     return entrants
 
 
@@ -84,6 +101,7 @@ def buildEntrantsJson(args=None):
                 if not args.quiet:
                     print(entrant.name + " has " + str(entrant.entries) + " entries")
                     print("There is currently a total of " + str(entrant.max) + " entries")
+    
     return entrants
 
 
