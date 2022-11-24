@@ -20,19 +20,19 @@ NUMBER_OF_ENTRIES_COLUMN = 1
 logger = logging.getLogger(__name__)
 
 
-def buildEntrants(args):
+def build_entrants(args):
     filename = args.file
     file_type = filename.split(".")[-1]
     
     if file_type == JSON:
-        entrants = _buildEntrantsJson(args)
+        entrants = _build_entrants_with_json(args)
     else:
-        entrants = _buildEntrantsTxt(args)
+        entrants = _build_entrants_with_csv(args)
 
     return entrants
 
 
-def _buildEntrantsTxt(args):
+def _build_entrants_with_csv(args):
     """Use the passed in args to build out and return an array of Entrant objects from a .txt
     file."""
     entrants_collection = EntrantsCollection()
@@ -52,7 +52,7 @@ def _buildEntrantsTxt(args):
                     try:
                         line_count += 1
                         entrant_name = row[NAME_COLUMN].strip()
-                        if not _isUnique(entrant_name, entrants_collection):
+                        if not _is_unique(entrant_name, entrants_collection):
                             logging.info(f'{entrant_name} has already been added to the list of entrants, but is listed again at row {line_count}. Skipping')
                             continue
                         entries = int(row[NUMBER_OF_ENTRIES_COLUMN], 10)
@@ -76,7 +76,7 @@ def _buildEntrantsTxt(args):
     return entrants_collection
 
 
-def _buildEntrantsJson(args):
+def _build_entrants_with_json(args):
     """Use the passed in args to build out and return an array of Entrant objects from a .json
     file."""
     entrants_collection = EntrantsCollection()
@@ -91,7 +91,7 @@ def _buildEntrantsJson(args):
             for json_entrant in data['entrants']:
                 try:
                     name = json_entrant['name']
-                    if not _isUnique(name, entrants_collection):
+                    if not _is_unique(name, entrants_collection):
                         continue
                     entries = int(json_entrant['entries'])
                     entrant = Entrant(name, entries)
@@ -112,7 +112,7 @@ def _get_bad_file_name_exception_message(io_exception: Exception) -> str:
     return f'Pass in a correct file instead of causing:{NEWLINE}{io_exception}'
 
 
-def _isUnique(name, entrants_collection: EntrantsCollection):
+def _is_unique(name, entrants_collection: EntrantsCollection):
     """Check to see if a name already belongs to an entrant in the list of entrants."""
     unique = True
     for entrant in entrants_collection.entrants:
@@ -123,16 +123,16 @@ def _isUnique(name, entrants_collection: EntrantsCollection):
     return unique
 
 
-def findWinningEntries(entrants_collection: EntrantsCollection, args) -> List:
+def find_winning_entries(entrants_collection: EntrantsCollection, args) -> List:
     without_removal = args.without_removal
 
     if without_removal:
-        return _findWinningEntriesWithoutRemoval(entrants_collection, args.number_of_winners)
+        return _find_winning_entries_without_removal(entrants_collection, args.number_of_winners)
     else:
-        return _findWinningEntriesWithRemoval(entrants_collection, args.number_of_winners)
+        return _find_winning_entries_with_removal(entrants_collection, args.number_of_winners)
 
 
-def _findWinningEntry(entrants_collection: EntrantsCollection) -> str:
+def _find_winning_entry(entrants_collection: EntrantsCollection) -> str:
     """Take in a list of Entrant objects, then find a random entry in the list and selects it as\
     the winner."""
     winning_entry_number = random.randint(0, entrants_collection.max_entries)
@@ -142,23 +142,23 @@ def _findWinningEntry(entrants_collection: EntrantsCollection) -> str:
             return entrant_name
 
 
-def _findWinningEntriesWithRemoval(entrants_collection: EntrantsCollection, numberOfWinners):
+def _find_winning_entries_with_removal(entrants_collection: EntrantsCollection, numberOfWinners):
     """Find x winning entries from the list of entrants(x being the second arg passed in)."""
     winners_list = []
     for _ in range(numberOfWinners):
-        winner_name = _findWinningEntry(entrants_collection)
+        winner_name = _find_winning_entry(entrants_collection)
         entrants_collection.remove_entrant(winner_name)
         winners_list.append(winner_name)
 
     return winners_list
 
 
-def _findWinningEntriesWithoutRemoval(entrants_collection: EntrantsCollection, number_of_winners: int) -> List:
+def _find_winning_entries_without_removal(entrants_collection: EntrantsCollection, number_of_winners: int) -> List:
     """Find winners in the entrants list without removing them from the list as they are\
     selected."""
     winners_list = []
     while len(winners_list) < number_of_winners:
-        winner_name = _findWinningEntry(entrants_collection)
+        winner_name = _find_winning_entry(entrants_collection)
         if winner_name not in winners_list:
             winners_list.append(winner_name)
         else:

@@ -4,8 +4,8 @@ import logging
 
 from argparse import ArgumentParser
 from randomselector import (
-    buildEntrants,
-    findWinningEntries
+    build_entrants,
+    find_winning_entries
 )
 
 
@@ -34,12 +34,12 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Acts as the overall controller of the script."""
-    args = takeInArgs()
+    args = take_in_args()
     
-    entrants = buildEntrants(args)
+    entrants = build_entrants(args)
 
     if entrants:
-        winning_entrants = findWinningEntries(entrants, args)
+        winning_entrants = find_winning_entries(entrants, args)
         logging.info(f'Our winners are: {winning_entrants}')
     else:
         logging.info(f'No entrants were entered!')
@@ -47,7 +47,7 @@ def main():
     exit(0)
 
 
-def takeInArgs():
+def take_in_args():
     """Take in arguments from the command line."""
     parser = ArgumentParser(description='Lets randomly select an entry from a csv file...')
     parser.add_argument('file', type=str, help='The file/path to be used.')
