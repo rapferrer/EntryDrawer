@@ -11,9 +11,10 @@ from entrant import Entrant
 
 JSON = "json"
 CSV = "csv"
+NEWLINE = chr(10)
 
 logger = logging.getLogger(__name__)
- 
+
 
 def buildEntrants(args):
     filename = args.file
@@ -34,7 +35,7 @@ def buildEntrantsTxt(args):
     try:
         csv_file = open(str(args.file))
     except IOError as ioe:
-        logging.warning("Pass in a correct file instead of causing:\n{0}".format(ioe))
+        logging.warning(_get_bad_file_name_exception_message(ioe))
     else:
         with csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -55,20 +56,19 @@ def buildEntrantsTxt(args):
                         minimum = minimum + entries
                     except ValueError as ve:
                         # Catches non-integer characters/sequences
-                        logging.warning("\nOops! Expected an integer (whole number) but didn't get one "
-                              "after " + str(row[0]) + " in row " + str(line_count))
-                        logging.warning("ValueError: {0}\n".format(ve))
+                        logging.warning(f'Oops! Expected an integer (whole number) but didn\'t get one "\
+                              "after {row[0]} in row {line_count}')
+                        logging.warning(f'ValueError: {ve}')
                         continue
                     except IndexError as ie:
                         # Catches emtpy lines
-                        logging.warning("\nOops! Expected info on line " + str(line_count) + " but found "
-                              "nothing!")
-                        logging.warning("IndexError: {0}\n".format(ie))
+                        logging.warning(f'Oops! Expected info on line {line_count} but found nothing!')
+                        logging.warning(f'IndexError: {ie}')
                         continue
                     entrants.append(entrant)
                     if not args.quiet:
-                        logging.warning(entrant.name + " has " + str(entrant.entries) + " entries")
-                        logging.warning("There is currently a total of " + str(entrant.max) + " entries")
+                        logging.info(f'{entrant.name} has {entrant.entries} entries')
+                        logging.info(f'There is currently a total of {entrant.max} entries')
     
     return entrants
 
@@ -80,7 +80,7 @@ def buildEntrantsJson(args=None):
     try:
         jsonFile = open(str(args.file))
     except IOError as ioe:
-        logging.warning("Pass in a correct file instead of causing:\n{0}".format(ioe))
+        logging.warning(_get_bad_file_name_exception_message(ioe))
     else:
         with jsonFile:
             minimum = 0
@@ -96,16 +96,19 @@ def buildEntrantsJson(args=None):
                     minimum = minimum + entries
                 except ValueError as ve:
                     # Catches non-integer characters/sequences
-                    logging.warning("\nOops! Expected an integer (whole number) but didn't get one "
-                          "with " + name)
-                    logging.warning("ValueError: {0}\n".format(ve))
+                    logging.warning(f'Oops! Expected an integer (whole number) but didn\'t get one with {name}')
+                    logging.warning(f'ValueError: {ve}')
                     continue
                 entrants.append(entrant)
                 if not args.quiet:
-                    logging.warning(entrant.name + " has " + str(entrant.entries) + " entries")
-                    logging.warning("There is currently a total of " + str(entrant.max) + " entries")
+                    logging.warning(f'{entrant.name} has {entrant.entries} entries')
+                    logging.warning(f'There is currently a total of {entrant.max} entries')
     
     return entrants
+
+
+def _get_bad_file_name_exception_message(io_exception: Exception) -> str:
+    return f'Pass in a correct file instead of causing:{NEWLINE}{io_exception}'
 
 
 def isUnique(name, entrants):
@@ -113,7 +116,7 @@ def isUnique(name, entrants):
     unique = True
     for existingEntrant in entrants:
         if name == existingEntrant.name:
-            logging.info(name + " already exists! Skipping")
+            logging.info(f'{name} already exists! Skipping')
             unique = False
             break
     return unique
@@ -122,13 +125,13 @@ def isUnique(name, entrants):
 def findWinningEntry(entrants, withRemoval):
     """Take in a list of Entrant objects, then find a random entry in the list and selects it as\
     the winner."""
-    logging.info("Time to select a random entry for our winner!")
+    logging.info(f'Time to select a random entry for our winner!')
     winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
-    logging.info("Selecting entry number " + str(winningEntry))
+    logging.info(f'Selecting entry number {winningEntry}')
     for entrant in entrants:
         if winningEntry < entrant.max:
             if withRemoval:
-                logging.info("Our winner is " + (entrant).name)
+                logging.info(f'Our winner is {entrant.name}')
             return entrant
 
 
@@ -166,14 +169,14 @@ def findWinningEntriesWithoutRemoval(entrants, numberOfWinners):
             winnerEntrants.append(winner)
             x += 1
         else:
-            logging.info("Oops. We selected " + winner.name + " a second time! Drawing again!")
+            logging.info(f'Oops. We selected " + winner.name + " a second time! Drawing again!')
     printWinners(winnerEntrants)
     return
 
 
 def printWinners(winners):
     """Print a list of Entrant objects."""
-    logging.info("Here are our winners!")
+    logging.info(f'Here are our winners!')
     for winner in winners:
         logging.info(winner.name)
     return
