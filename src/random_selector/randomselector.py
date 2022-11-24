@@ -55,8 +55,8 @@ def _build_entrants_with_csv(args):
                         if not _is_unique(entrant_name, entrants_collection):
                             logging.info(f'{entrant_name} has already been added to the list of entrants, but is listed again at row {line_count}. Skipping')
                             continue
-                        entries = int(row[NUMBER_OF_ENTRIES_COLUMN], 10)
-                        entrant = Entrant(entrant_name, entries)
+                        number_of_entries = int(row[NUMBER_OF_ENTRIES_COLUMN], 10)
+                        entrant = Entrant(entrant_name, number_of_entries)
                         entrants_collection.add_entrant(entrant)
                         if not args.quiet:
                             logging.info(f'{entrant.name} has {entrant.entries} entries')
@@ -90,21 +90,21 @@ def _build_entrants_with_json(args):
             data = json.load(jsonFile)
             for json_entrant in data['entrants']:
                 try:
-                    name = json_entrant['name']
-                    if not _is_unique(name, entrants_collection):
+                    entrant_name = json_entrant['name']
+                    if not _is_unique(entrant_name, entrants_collection):
                         continue
-                    entries = int(json_entrant['entries'])
-                    entrant = Entrant(name, entries)
+                    number_of_entries = int(json_entrant['entries'])
+                    entrant = Entrant(entrant_name, number_of_entries)
                     entrants_collection.append(entrant)
                     if not args.quiet:
                         logging.warning(f'{entrant.name} has {entrant.entries} entries')
                         logging.warning(f'There is currently a total of {entrant.max} entries')
                 except ValueError as ve:
                     # Catches non-integer characters/sequences
-                    logging.warning(f'Oops! Expected an integer (whole number) but didn\'t get one with {name}')
+                    logging.warning(f'Oops! Expected an integer (whole number) but didn\'t get one with {entrant_name}')
                     logging.warning(f'ValueError: {ve}')
                     continue
-    
+
     return entrants_collection
 
 
