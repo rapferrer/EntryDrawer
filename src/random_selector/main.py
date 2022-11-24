@@ -40,9 +40,9 @@ def main():
 
     if entrants:
         winning_entrants = find_winning_entries(entrants, args)
-        logging.info(f'Our winners are: {winning_entrants}')
+        logger.info(f'Our winners are: {winning_entrants}')
     else:
-        logging.info(f'No entrants were entered!')
+        logger.info(f'No entrants were entered!')
 
     exit(0)
 

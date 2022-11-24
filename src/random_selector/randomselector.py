@@ -23,13 +23,16 @@ logger = logging.getLogger(__name__)
 def build_entrants(args):
     filename = args.file
     file_type = filename.split(".")[-1]
+    entrants_collection = EntrantsCollection()
     
     if file_type == JSON:
-        entrants = _build_entrants_with_json(args)
+        entrants_collection = _build_entrants_with_json(args)
+    elif file_type == CSV:
+        entrants_collection = _build_entrants_with_csv(args)
     else:
-        entrants = _build_entrants_with_csv(args)
+        logger.info(f'Unsupported file type: {file_type}')
 
-    return entrants
+    return entrants_collection
 
 
 def _build_entrants_with_csv(args):
@@ -40,7 +43,7 @@ def _build_entrants_with_csv(args):
     try:
         csv_file = open(str(args.file))
     except IOError as ioe:
-        logging.warning(_get_bad_file_name_exception_message(ioe))
+        logger.warning(_get_bad_file_name_exception_message(ioe))
     else:
         with csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -53,24 +56,24 @@ def _build_entrants_with_csv(args):
                         line_count += 1
                         entrant_name = row[NAME_COLUMN].strip()
                         if not _is_unique(entrant_name, entrants_collection):
-                            logging.info(f'{entrant_name} has already been added to the list of entrants, but is listed again at row {line_count}. Skipping')
+                            logger.info(f'{entrant_name} has already been added to the list of entrants, but is listed again at row {line_count}. Skipping')
                             continue
                         number_of_entries = int(row[NUMBER_OF_ENTRIES_COLUMN], 10)
                         entrant = Entrant(entrant_name, number_of_entries)
                         entrants_collection.add_entrant(entrant)
                         if not args.quiet:
-                            logging.info(f'{entrant.name} has {entrant.entries} entries')
-                            logging.info(f'There is currently a total of {entrants_collection.max_entries} entries')
+                            logger.info(f'{entrant.name} has {entrant.entries} entries')
+                            logger.info(f'There is currently a total of {entrants_collection.max_entries} entries')
                     except ValueError as ve:
                         # Catches non-integer characters/sequences
-                        logging.warning(f'Oops! Expected an integer (whole number) but didn\'t get one "\
+                        logger.warning(f'Oops! Expected an integer (whole number) but didn\'t get one "\
                               "after {row[0]} in row {line_count}')
-                        logging.warning(f'ValueError: {ve}')
+                        logger.warning(f'ValueError: {ve}')
                         continue
                     except IndexError as ie:
                         # Catches emtpy lines
-                        logging.warning(f'Oops! Expected info on line {line_count} but found nothing!')
-                        logging.warning(f'IndexError: {ie}')
+                        logger.warning(f'Oops! Expected info on line {line_count} but found nothing!')
+                        logger.warning(f'IndexError: {ie}')
                         continue
 
     return entrants_collection
@@ -84,7 +87,7 @@ def _build_entrants_with_json(args):
     try:
         jsonFile = open(str(args.file))
     except IOError as ioe:
-        logging.warning(_get_bad_file_name_exception_message(ioe))
+        logger.warning(_get_bad_file_name_exception_message(ioe))
     else:
         with jsonFile:
             data = json.load(jsonFile)
@@ -97,12 +100,12 @@ def _build_entrants_with_json(args):
                     entrant = Entrant(entrant_name, number_of_entries)
                     entrants_collection.append(entrant)
                     if not args.quiet:
-                        logging.warning(f'{entrant.name} has {entrant.entries} entries')
-                        logging.warning(f'There is currently a total of {entrant.max} entries')
+                        logger.warning(f'{entrant.name} has {entrant.entries} entries')
+                        logger.warning(f'There is currently a total of {entrant.max} entries')
                 except ValueError as ve:
                     # Catches non-integer characters/sequences
-                    logging.warning(f'Oops! Expected an integer (whole number) but didn\'t get one with {entrant_name}')
-                    logging.warning(f'ValueError: {ve}')
+                    logger.warning(f'Oops! Expected an integer (whole number) but didn\'t get one with {entrant_name}')
+                    logger.warning(f'ValueError: {ve}')
                     continue
 
     return entrants_collection
@@ -117,7 +120,7 @@ def _is_unique(name, entrants_collection: EntrantsCollection):
     unique = True
     for entrant in entrants_collection.entrants:
         if name == entrant.name:
-            logging.info(f'{name} already exists! Skipping')
+            logger.info(f'{name} already exists! Skipping')
             unique = False
             break
     return unique
@@ -136,7 +139,7 @@ def _find_winning_entry(entrants_collection: EntrantsCollection) -> str:
     """Take in a list of Entrant objects, then find a random entry in the list and selects it as\
     the winner."""
     winning_entry_number = random.randint(0, entrants_collection.max_entries)
-    logging.info(f'Time to select a random entry for our winner! Selecting entry number {winning_entry_number}')
+    logger.info(f'Time to select a random entry for our winner! Selecting entry number {winning_entry_number}')
     for entrant_name, entrant_entry_range in entrants_collection.entrant_entries.items():
         if entrant_entry_range[0] <= winning_entry_number <= entrant_entry_range[1]:
             return entrant_name
@@ -162,6 +165,6 @@ def _find_winning_entries_without_removal(entrants_collection: EntrantsCollectio
         if winner_name not in winners_list:
             winners_list.append(winner_name)
         else:
-            logging.info(f'Oops. We already selected {winner_name} before! Drawing again!')
+            logger.info(f'Oops. We already selected {winner_name} before! Drawing again!')
 
     return winners_list
