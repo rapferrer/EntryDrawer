@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import logging
+
 from argparse import ArgumentParser
 from randomselector import (
     buildEntrants,
@@ -28,6 +30,8 @@ from randomselector import (
 #        ...
 #
 
+logger = logging.getLogger(__name__)
+
 
 def main():
     """Acts as the overall controller of the script."""
@@ -41,7 +45,7 @@ def main():
         else:
             findWinningEntriesWithRemoval(entrants, args.number_of_winners)
     else:
-        print("No entrants were entered!")
+        logging.info(f'No entrants were entered!')
     exit(0)
 
 

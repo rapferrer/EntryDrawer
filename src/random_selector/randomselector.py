@@ -3,6 +3,7 @@
 
 import csv
 import json
+import logging
 import random
 
 from entrant import Entrant
@@ -11,6 +12,8 @@ from entrant import Entrant
 JSON = "json"
 CSV = "csv"
 
+logger = logging.getLogger(__name__)
+ 
 
 def buildEntrants(args):
     filename = args.file
@@ -20,7 +23,7 @@ def buildEntrants(args):
         entrants = buildEntrantsJson(args)
     else:
         entrants = buildEntrantsTxt(args)
-    
+
     return entrants
 
 
@@ -31,7 +34,7 @@ def buildEntrantsTxt(args):
     try:
         csv_file = open(str(args.file))
     except IOError as ioe:
-        print("Pass in a correct file instead of causing:\n{0}".format(ioe))
+        logging.warning("Pass in a correct file instead of causing:\n{0}".format(ioe))
     else:
         with csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -52,20 +55,20 @@ def buildEntrantsTxt(args):
                         minimum = minimum + entries
                     except ValueError as ve:
                         # Catches non-integer characters/sequences
-                        print("\nOops! Expected an integer (whole number) but didn't get one "
+                        logging.warning("\nOops! Expected an integer (whole number) but didn't get one "
                               "after " + str(row[0]) + " in row " + str(line_count))
-                        print("ValueError: {0}\n".format(ve))
+                        logging.warning("ValueError: {0}\n".format(ve))
                         continue
                     except IndexError as ie:
                         # Catches emtpy lines
-                        print("\nOops! Expected info on line " + str(line_count) + " but found "
+                        logging.warning("\nOops! Expected info on line " + str(line_count) + " but found "
                               "nothing!")
-                        print("IndexError: {0}\n".format(ie))
+                        logging.warning("IndexError: {0}\n".format(ie))
                         continue
                     entrants.append(entrant)
                     if not args.quiet:
-                        print(entrant.name + " has " + str(entrant.entries) + " entries")
-                        print("There is currently a total of " + str(entrant.max) + " entries")
+                        logging.warning(entrant.name + " has " + str(entrant.entries) + " entries")
+                        logging.warning("There is currently a total of " + str(entrant.max) + " entries")
     
     return entrants
 
@@ -77,7 +80,7 @@ def buildEntrantsJson(args=None):
     try:
         jsonFile = open(str(args.file))
     except IOError as ioe:
-        print("Pass in a correct file instead of causing:\n{0}".format(ioe))
+        logging.warning("Pass in a correct file instead of causing:\n{0}".format(ioe))
     else:
         with jsonFile:
             minimum = 0
@@ -93,14 +96,14 @@ def buildEntrantsJson(args=None):
                     minimum = minimum + entries
                 except ValueError as ve:
                     # Catches non-integer characters/sequences
-                    print("\nOops! Expected an integer (whole number) but didn't get one "
+                    logging.warning("\nOops! Expected an integer (whole number) but didn't get one "
                           "with " + name)
-                    print("ValueError: {0}\n".format(ve))
+                    logging.warning("ValueError: {0}\n".format(ve))
                     continue
                 entrants.append(entrant)
                 if not args.quiet:
-                    print(entrant.name + " has " + str(entrant.entries) + " entries")
-                    print("There is currently a total of " + str(entrant.max) + " entries")
+                    logging.warning(entrant.name + " has " + str(entrant.entries) + " entries")
+                    logging.warning("There is currently a total of " + str(entrant.max) + " entries")
     
     return entrants
 
@@ -110,7 +113,7 @@ def isUnique(name, entrants):
     unique = True
     for existingEntrant in entrants:
         if name == existingEntrant.name:
-            print(name + " already exists! Skipping")
+            logging.info(name + " already exists! Skipping")
             unique = False
             break
     return unique
@@ -119,13 +122,13 @@ def isUnique(name, entrants):
 def findWinningEntry(entrants, withRemoval):
     """Take in a list of Entrant objects, then find a random entry in the list and selects it as\
     the winner."""
-    print("Time to select a random entry for our winner!")
+    logging.info("Time to select a random entry for our winner!")
     winningEntry = entrants[-1].max % random.randint(0, entrants[-1].max)
-    print("Selecting entry number " + str(winningEntry))
+    logging.info("Selecting entry number " + str(winningEntry))
     for entrant in entrants:
         if winningEntry < entrant.max:
             if withRemoval:
-                print("Our winner is " + (entrant).name)
+                logging.info("Our winner is " + (entrant).name)
             return entrant
 
 
@@ -163,14 +166,14 @@ def findWinningEntriesWithoutRemoval(entrants, numberOfWinners):
             winnerEntrants.append(winner)
             x += 1
         else:
-            print("Oops. We selected " + winner.name + " a second time! Drawing again!")
+            logging.info("Oops. We selected " + winner.name + " a second time! Drawing again!")
     printWinners(winnerEntrants)
     return
 
 
 def printWinners(winners):
     """Print a list of Entrant objects."""
-    print("Here are our winners!")
+    logging.info("Here are our winners!")
     for winner in winners:
-        print(winner.name)
+        logging.info(winner.name)
     return
