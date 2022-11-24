@@ -39,7 +39,8 @@ def main():
     entrants = buildEntrants(args)
 
     if entrants:
-        findWinningEntries(entrants, args)
+        winning_entrants = findWinningEntries(entrants, args)
+        logging.info(f'Our winners are: {winning_entrants}')
     else:
         logging.info(f'No entrants were entered!')
 
