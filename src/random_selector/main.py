@@ -5,8 +5,7 @@ import logging
 from argparse import ArgumentParser
 from randomselector import (
     buildEntrants,
-    findWinningEntriesWithoutRemoval,
-    findWinningEntriesWithRemoval
+    findWinningEntries
 )
 
 
@@ -39,13 +38,11 @@ def main():
     
     entrants = buildEntrants(args)
 
-    if len(entrants) > 0:
-        if args.without_removal:
-            findWinningEntriesWithoutRemoval(entrants, args.number_of_winners)
-        else:
-            findWinningEntriesWithRemoval(entrants, args.number_of_winners)
+    if entrants:
+        findWinningEntries(entrants, args)
     else:
         logging.info(f'No entrants were entered!')
+
     exit(0)
 
 
@@ -60,6 +57,7 @@ def takeInArgs():
     parser.add_argument('--without_removal', action='store_true', help='Choose multiple winners\
          without removing the winners from the list of entrants. Default is false')
     parser.add_argument('-q', '--quiet', action='store_true', help='Print less to stdout')
+
     return parser.parse_args()
 
 
