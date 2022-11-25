@@ -7,8 +7,8 @@ import logging
 
 from typing import Dict, List
 
-from entrant import Entrant
-from entrants_collection import EntrantsCollection
+from models.entrant import Entrant
+from models.entrants_collection import EntrantsCollection
 
 
 JSON = "json"

@@ -6,7 +6,7 @@ import logging
 import random
 from typing import List
 
-from entrants_collection import EntrantsCollection
+from models.entrants_collection import EntrantsCollection
 
 
 logger = logging.getLogger(__name__)
