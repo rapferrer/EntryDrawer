@@ -3,10 +3,8 @@
 import logging
 
 from argparse import ArgumentParser
-from randomselector import (
-    build_entrants,
-    find_winning_entries
-)
+from file_parser import build_entrants
+from winning_entry_selector import find_winning_entries
 
 
 # This script takes in a csv or json file and randomly selects an entry from the total collected
