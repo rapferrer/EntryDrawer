@@ -13,7 +13,6 @@ from models.entrants_collection import EntrantsCollection
 
 JSON = "json"
 CSV = "csv"
-NEWLINE = chr(10)
 NAME_COLUMN = 0
 NUMBER_OF_ENTRIES_COLUMN = 1
 
