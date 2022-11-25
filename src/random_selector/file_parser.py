@@ -5,6 +5,8 @@ import csv
 import json
 import logging
 
+from typing import Dict, List
+
 from entrant import Entrant
 from entrants_collection import EntrantsCollection
 
@@ -24,101 +26,117 @@ def build_entrants(args):
     entrants_collection = EntrantsCollection()
     
     if file_type == JSON:
-        entrants_collection = _build_entrants_with_json(args)
+        entrants_collection = _build_entrants_with_json_file(args)
     elif file_type == CSV:
-        entrants_collection = _build_entrants_with_csv(args)
+        entrants_collection = _build_entrants_with_csv_file(args)
     else:
         logger.info(f'Unsupported file type: {file_type}')
 
     return entrants_collection
 
 
-def _build_entrants_with_csv(args):
-    """Use the passed in args to build out and return an array of Entrant objects from a .txt
+def _build_entrants_with_csv_file(args):
+    """Use the passed in args to build out and return an array of Entrant objects from a .csv
     file."""
     entrants_collection = EntrantsCollection()
 
-    try:
-        csv_file = open(str(args.file))
-    except IOError as ioe:
-        logger.warning(_get_bad_file_name_exception_message(ioe))
-    else:
-        with csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=',')
-            line_count = 0
-            for row in csv_reader:
-                if (line_count == 0) and not args.no_header:
-                    line_count += 1
-                else:
-                    try:
-                        line_count += 1
-                        entrant_name = row[NAME_COLUMN].strip()
-                        if not _is_unique(entrant_name, entrants_collection):
-                            logger.info(f'{entrant_name} has already been added to the list of entrants, but is listed again at row {line_count}. Skipping')
-                            continue
-                        number_of_entries = int(row[NUMBER_OF_ENTRIES_COLUMN], 10)
-                        entrant = Entrant(entrant_name, number_of_entries)
-                        entrants_collection.add_entrant(entrant)
-                        if not args.quiet:
-                            logger.info(f'{entrant.name} has {entrant.entries} entries')
-                            logger.info(f'There is currently a total of {entrants_collection.max_entries} entries')
-                    except ValueError as ve:
-                        # Catches non-integer characters/sequences
-                        logger.warning(f'Oops! Expected an integer (whole number) but didn\'t get one "\
-                              "after {row[0]} in row {line_count}')
-                        logger.warning(f'ValueError: {ve}')
-                        continue
-                    except IndexError as ie:
-                        # Catches emtpy lines
-                        logger.warning(f'Oops! Expected info on line {line_count} but found nothing!')
-                        logger.warning(f'IndexError: {ie}')
-                        continue
+    with open(str(args.file), 'r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        entrants_collection = _parse_entrants_from_csv_rows(csv_reader, args.quiet, args.no_header)
 
     return entrants_collection
 
 
-def _build_entrants_with_json(args):
+def _parse_entrants_from_csv_rows(csv_reader: csv.reader, quiet_output: bool, no_header: bool) -> List:
+    entrants_collection = EntrantsCollection()
+    line_count = 0
+
+    for row in csv_reader:
+        if (line_count == 0) and not no_header:
+            line_count += 1
+            continue
+        else:
+            try:
+                entrant = _parse_entrant_from_csv_row(row)
+                if entrant not in entrants_collection:
+                    entrants_collection.add_entrant(entrant)
+                    if not quiet_output:
+                        _log_entrant(entrant, entrants_collection)
+                else:
+                    logger.info(f'{entrant.name} already exists! Skipping')
+
+                line_count += 1
+            except ValueError as ve:
+                _handle_value_error(ve, row)
+                continue
+            except IndexError as ie:
+                # Catches emtpy lines
+                logger.warning(f'Oops! Expected info on line {line_count + 1} but found nothing!')
+                logger.warning(f'IndexError: {ie}')
+                continue
+
+    return entrants_collection
+
+
+def _parse_entrant_from_csv_row(row: List) -> Entrant:
+    return Entrant(
+        row[NAME_COLUMN].strip(),
+        int(row[NUMBER_OF_ENTRIES_COLUMN], 10)
+    )  
+
+
+def _build_entrants_with_json_file(args):
     """Use the passed in args to build out and return an array of Entrant objects from a .json
     file."""
     entrants_collection = EntrantsCollection()
 
-    try:
-        jsonFile = open(str(args.file))
-    except IOError as ioe:
-        logger.warning(_get_bad_file_name_exception_message(ioe))
-    else:
-        with jsonFile:
-            data = json.load(jsonFile)
-            for json_entrant in data['entrants']:
-                try:
-                    entrant_name = json_entrant['name']
-                    if not _is_unique(entrant_name, entrants_collection):
-                        continue
-                    number_of_entries = int(json_entrant['entries'])
-                    entrant = Entrant(entrant_name, number_of_entries)
-                    entrants_collection.append(entrant)
-                    if not args.quiet:
-                        logger.warning(f'{entrant.name} has {entrant.entries} entries')
-                        logger.warning(f'There is currently a total of {entrant.max} entries')
-                except ValueError as ve:
-                    # Catches non-integer characters/sequences
-                    logger.warning(f'Oops! Expected an integer (whole number) but didn\'t get one with {entrant_name}')
-                    logger.warning(f'ValueError: {ve}')
-                    continue
+    with open(str(args.file)) as json_file:
+        data = json.load(json_file)
+        entrants_collection = _parse_entrants_from_json(data)
 
     return entrants_collection
 
 
-def _get_bad_file_name_exception_message(io_exception: Exception) -> str:
-    return f'Pass in a correct file instead of causing:{NEWLINE}{io_exception}'
+def _parse_entrants_from_json(data: List, quiet_output: bool) -> EntrantsCollection:
+    entrants_collection = EntrantsCollection()
+
+    for json_entrant in data['entrants']:
+        try:
+            entrant = _parse_entrant_from_json(json_entrant)
+            if entrant not in entrants_collection:
+                entrants_collection.append(entrant)
+                if not quiet_output:
+                    _log_entrant(entrant, entrants_collection)
+            else:
+                logger.info(f'{entrant.name} already exists! Skipping')
+
+        except ValueError as ve:
+            _handle_value_error(ve, json_entrant)
+            continue
+
+    return entrants_collection
 
 
-def _is_unique(name, entrants_collection: EntrantsCollection):
-    """Check to see if a name already belongs to an entrant in the list of entrants."""
-    unique = True
-    for entrant in entrants_collection.entrants:
-        if name == entrant.name:
-            logger.info(f'{name} already exists! Skipping')
-            unique = False
-            break
-    return unique
+def _parse_entrant_from_json(json_entrant: Dict) -> Entrant:
+    return Entrant(
+        json_entrant['name'],
+        json_entrant['entries']
+    )
+
+
+def _log_entrant(entrant: Entrant, entrants_collection: EntrantsCollection):
+    logger.info(f'{entrant.name} has {entrant.entries} entries')
+    logger.info(f'There is currently a total of {entrants_collection.max_entries} entries') 
+
+
+def _handle_value_error(value_error: ValueError, unparsed_obj):
+    message_prefix = f'Oops! Expected an integer (whole number) but didn\'t get one with '
+    if isinstance(unparsed_obj, List):
+        message_suffix = f'row {unparsed_obj}'
+    elif isinstance(unparsed_obj, Dict):
+        message_suffix = f'{unparsed_obj}'
+    else:
+        raise TypeError(f'Unrecognized object passed to value error handler: {unparsed_obj}')
+
+    logger.warning(message_prefix + message_suffix)
+    logger.warning(f'ValueError: {value_error}') 

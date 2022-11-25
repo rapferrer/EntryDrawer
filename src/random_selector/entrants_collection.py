@@ -41,3 +41,12 @@ class EntrantsCollection:
             return True
         else:
             return False
+
+    
+    def __contains__(self, entrant: Entrant):
+        """Returns True if the given Entrant object is already a part of the entrants list"""
+        for existing_entrant in self.entrants:
+            if entrant.name == existing_entrant.name:
+                return True
+        
+        return False
