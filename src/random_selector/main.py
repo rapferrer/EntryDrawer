@@ -2,7 +2,7 @@
 
 import logging
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from file_parser import build_entrants
 from winning_entry_selector import find_winning_entries
 
@@ -45,7 +45,7 @@ def main():
     exit(0)
 
 
-def take_in_args():
+def take_in_args() -> Namespace:
     """Take in arguments from the command line."""
     parser = ArgumentParser(description='Lets randomly select an entry from a csv file...')
     parser.add_argument('file', type=str, help='The file/path to be used.')

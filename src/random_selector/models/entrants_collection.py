@@ -35,7 +35,7 @@ class EntrantsCollection:
         self.max_entries = new_max_entries
 
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """Return True if any Entrant objects have been added to the collection. Otherwise return False."""
         if self.entrants:
             return True
@@ -43,7 +43,7 @@ class EntrantsCollection:
             return False
 
     
-    def __contains__(self, entrant: Entrant):
+    def __contains__(self, entrant: Entrant) -> bool:
         """Returns True if the given Entrant object is already a part of the entrants list"""
         for existing_entrant in self.entrants:
             if entrant.name == existing_entrant.name:

@@ -9,6 +9,6 @@ class Entrant:
         self.name = name
 
 
-    def __eq__(self, other_name):
+    def __eq__(self, other_name: str):
         """Return True if the given name matches this entrants name"""
         return self.name == other_name

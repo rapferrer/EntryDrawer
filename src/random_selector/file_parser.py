@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Takes in a list of entrants from a .csv and finds the winner or winners."""
 
+from argparse import Namespace
 import csv
 import json
 import logging
@@ -19,7 +20,7 @@ NUMBER_OF_ENTRIES_COLUMN = 1
 logger = logging.getLogger(__name__)
 
 
-def build_entrants(args):
+def build_entrants(args: Namespace) -> EntrantsCollection:
     filename = args.file
     file_type = filename.split(".")[-1]
     entrants_collection = EntrantsCollection()
@@ -34,7 +35,7 @@ def build_entrants(args):
     return entrants_collection
 
 
-def _build_entrants_with_csv_file(args):
+def _build_entrants_with_csv_file(args: Namespace) -> EntrantsCollection:
     """Use the passed in args to build out and return an array of Entrant objects from a .csv
     file."""
     entrants_collection = EntrantsCollection()
@@ -84,7 +85,7 @@ def _parse_entrant_from_csv_row(row: List) -> Entrant:
     )  
 
 
-def _build_entrants_with_json_file(args):
+def _build_entrants_with_json_file(args: Namespace) -> EntrantsCollection:
     """Use the passed in args to build out and return an array of Entrant objects from a .json
     file."""
     entrants_collection = EntrantsCollection()
