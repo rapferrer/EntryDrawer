@@ -2,6 +2,7 @@
 
 from src.random_selector.models.entrants_collection import EntrantsCollection
 from src.tests.utilities import (
+    build_test_entrants_collection,
     build_test_entrant,
     TEST_ENTRANT_NAME,
     TEST_ENTRANT_ENTRIES
@@ -15,12 +16,11 @@ def test_Init_SetInstanceVars_CorrectlySetsInstanceVars():
     assert entrants_collection.entrant_entries == {}
 
 
-def test_AddEntrant_SettingEntrantObj_EntrantObjIsAdded():
+def test_AddEntrant_SettingEntrant_EntrantIsAdded():
     first_test_entrant = build_test_entrant()
     expected_entrants_list = [first_test_entrant]
 
-    entrants_collection = EntrantsCollection()
-    entrants_collection.add_entrant(first_test_entrant)
+    entrants_collection = build_test_entrants_collection()
 
     assert entrants_collection.entrants == expected_entrants_list
     assert entrants_collection.max_entries == TEST_ENTRANT_ENTRIES
@@ -33,3 +33,12 @@ def test_AddEntrant_SettingEntrantObj_EntrantObjIsAdded():
     assert entrants_collection.entrants == expected_entrants_list
     assert entrants_collection.max_entries == TEST_ENTRANT_ENTRIES + 2
     assert entrants_collection.entrant_entries["test2"] == (1, 3)
+
+
+def test_RemoveEntrant_RemovingEntrant_EntrantIsRemoved():
+    entrants_collection = build_test_entrants_collection()
+    entrants_collection.remove_entrant(TEST_ENTRANT_NAME)
+
+    assert entrants_collection.entrants == []
+    assert entrants_collection.max_entries == 0
+    assert entrants_collection.entrant_entries == {}
