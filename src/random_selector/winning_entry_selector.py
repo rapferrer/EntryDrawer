@@ -29,7 +29,7 @@ def _find_winning_entry(entrants_collection: EntrantsCollection) -> str:
     winning_entry_number = random.randint(0, entrants_collection.max_entries)
     logger.info(f'Time to select a random entry for our winner! Selecting entry number {winning_entry_number}')
     for entrant_name, entrant_entry_range in entrants_collection.entrant_entries.items():
-        if entrant_entry_range[0] <= winning_entry_number <= entrant_entry_range[1]:
+        if entrant_entry_range[0] < winning_entry_number <= entrant_entry_range[1]:
             winning_entrant = entrant_name
             break
 
