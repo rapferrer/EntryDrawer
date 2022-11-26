@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from src.random_selector.models.entrants_collection import EntrantsCollection
-from src.tests.utilities import (
+from src.tests.utilities.utilities import (
     build_test_entrants_collection,
     build_test_entrant,
     TEST_ENTRANT_NAME,

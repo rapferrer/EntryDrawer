@@ -8,8 +8,8 @@ import logging
 
 from typing import Dict, List
 
-from models.entrant import Entrant
-from models.entrants_collection import EntrantsCollection
+from src.random_selector.models.entrant import Entrant
+from src.random_selector.models.entrants_collection import EntrantsCollection
 
 
 JSON = "json"
@@ -49,15 +49,15 @@ def _build_entrants_with_csv_file(args: Namespace) -> EntrantsCollection:
 
 def _parse_entrants_from_csv_rows(csv_reader, quiet_output: bool, no_header: bool) -> EntrantsCollection:
     entrants_collection = EntrantsCollection()
-    line_count = 0
+    row_number = 0
 
     for row in csv_reader:
-        if (line_count == 0) and not no_header:
-            line_count += 1
+        if (row_number == 0) and not no_header:
+            row_number += 1
             continue
         else:
             try:
-                entrant = _parse_entrant_from_csv_row(row)
+                entrant = _parse_entrant_from_list(row)
                 if entrant not in entrants_collection:
                     entrants_collection.add_entrant(entrant)
                     if not quiet_output:
@@ -65,20 +65,20 @@ def _parse_entrants_from_csv_rows(csv_reader, quiet_output: bool, no_header: boo
                 else:
                     logger.info(f'{entrant.name} already exists! Skipping')
 
-                line_count += 1
+                row_number += 1
             except ValueError as ve:
                 _handle_value_error(ve, row)
                 continue
             except IndexError as ie:
                 # Catches emtpy lines
-                logger.warning(f'Oops! Expected info on line {line_count + 1} but found nothing!')
+                logger.warning(f'Oops! Expected info on line {row_number + 1} but found nothing!')
                 logger.warning(f'IndexError: {ie}')
                 continue
 
     return entrants_collection
 
 
-def _parse_entrant_from_csv_row(row: List) -> Entrant:
+def _parse_entrant_from_list(row: List) -> Entrant:
     return Entrant(
         row[NAME_COLUMN].strip(),
         int(row[NUMBER_OF_ENTRIES_COLUMN], 10)
@@ -92,17 +92,17 @@ def _build_entrants_with_json_file(args: Namespace) -> EntrantsCollection:
 
     with open(str(args.file)) as json_file:
         data = json.load(json_file)
-        entrants_collection = _parse_entrants_from_json(data, args.quiet)
+        entrants_collection = _parse_entrants_from_dict(data, args.quiet)
 
     return entrants_collection
 
 
-def _parse_entrants_from_json(data: Dict, quiet_output: bool) -> EntrantsCollection:
+def _parse_entrants_from_dict(data: Dict, quiet_output: bool) -> EntrantsCollection:
     entrants_collection = EntrantsCollection()
 
-    for json_entrant in data['entrants']:
+    for entrant_obj in data['entrants']:
         try:
-            entrant = _parse_entrant_from_json(json_entrant)
+            entrant = _parse_entrant_from_dict(entrant_obj)
             if entrant not in entrants_collection:
                 entrants_collection.add_entrant(entrant)
                 if not quiet_output:
@@ -111,16 +111,16 @@ def _parse_entrants_from_json(data: Dict, quiet_output: bool) -> EntrantsCollect
                 logger.info(f'{entrant.name} already exists! Skipping')
 
         except ValueError as ve:
-            _handle_value_error(ve, json_entrant)
+            _handle_value_error(ve, entrant_obj)
             continue
 
     return entrants_collection
 
 
-def _parse_entrant_from_json(json_entrant: Dict) -> Entrant:
+def _parse_entrant_from_dict(entrant: Dict) -> Entrant:
     return Entrant(
-        json_entrant['name'],
-        json_entrant['entries']
+        entrant['name'],
+        entrant['entries']
     )
 
 
