@@ -24,11 +24,15 @@ def find_winning_entries(entrants_collection: EntrantsCollection, args) -> List:
 def _find_winning_entry(entrants_collection: EntrantsCollection) -> str:
     """Take in a list of Entrant objects, then find a random entry in the list and selects it as\
     the winner."""
+    winning_entrant = ""
     winning_entry_number = random.randint(0, entrants_collection.max_entries)
     logger.info(f'Time to select a random entry for our winner! Selecting entry number {winning_entry_number}')
     for entrant_name, entrant_entry_range in entrants_collection.entrant_entries.items():
         if entrant_entry_range[0] <= winning_entry_number <= entrant_entry_range[1]:
-            return entrant_name
+            winning_entrant = entrant_name
+            break
+
+    return winning_entrant
 
 
 def _find_winning_entries_with_removal(entrants_collection: EntrantsCollection, numberOfWinners):

@@ -46,7 +46,7 @@ def _build_entrants_with_csv_file(args):
     return entrants_collection
 
 
-def _parse_entrants_from_csv_rows(csv_reader: csv.reader, quiet_output: bool, no_header: bool) -> List:
+def _parse_entrants_from_csv_rows(csv_reader, quiet_output: bool, no_header: bool) -> EntrantsCollection:
     entrants_collection = EntrantsCollection()
     line_count = 0
 
@@ -91,19 +91,19 @@ def _build_entrants_with_json_file(args):
 
     with open(str(args.file)) as json_file:
         data = json.load(json_file)
-        entrants_collection = _parse_entrants_from_json(data)
+        entrants_collection = _parse_entrants_from_json(data, args.quiet)
 
     return entrants_collection
 
 
-def _parse_entrants_from_json(data: List, quiet_output: bool) -> EntrantsCollection:
+def _parse_entrants_from_json(data: Dict, quiet_output: bool) -> EntrantsCollection:
     entrants_collection = EntrantsCollection()
 
     for json_entrant in data['entrants']:
         try:
             entrant = _parse_entrant_from_json(json_entrant)
             if entrant not in entrants_collection:
-                entrants_collection.append(entrant)
+                entrants_collection.add_entrant(entrant)
                 if not quiet_output:
                     _log_entrant(entrant, entrants_collection)
             else:

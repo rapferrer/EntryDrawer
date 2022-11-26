@@ -29,7 +29,7 @@ class EntrantsCollection:
         self.entrant_entries = {}
 
 
-    def _set_entries(self, entrant: Entrant) -> int:
+    def _set_entries(self, entrant: Entrant):
         new_max_entries = self.max_entries + entrant.entries
         self.entrant_entries[entrant.name] = (self.max_entries, new_max_entries)
         self.max_entries = new_max_entries
