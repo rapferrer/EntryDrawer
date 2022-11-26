@@ -24,13 +24,11 @@ def build_entrants(args: Namespace) -> EntrantsCollection:
     filename = args.file
     file_type = filename.split(".")[-1]
     entrants_collection = EntrantsCollection()
-    
-    if file_type == JSON:
-        entrants_collection = _build_entrants_with_json_file(args)
-    elif file_type == CSV:
-        entrants_collection = _build_entrants_with_csv_file(args)
-    else:
-        logger.info(f'Unsupported file type: {file_type}')
+
+    try:
+        entrants_collection = FILE_TYPE_PARSER_MAP[file_type](args)
+    except KeyError as ke:
+        logger.info(f'Unsupported file type, {file_type}, caused KeyError: {ke}')
 
     return entrants_collection
 
@@ -139,4 +137,10 @@ def _handle_value_error(value_error: ValueError, unparsed_obj):
         raise TypeError(f'Unrecognized object passed to value error handler: {unparsed_obj}')
 
     logger.warning(message_prefix + message_suffix)
-    logger.warning(f'ValueError: {value_error}') 
+    logger.warning(f'ValueError: {value_error}')
+
+
+FILE_TYPE_PARSER_MAP = {
+    CSV: _build_entrants_with_csv_file,
+    JSON: _build_entrants_with_json_file
+}
