@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-from entrant import Entrant
+from src.random_selector.models.entrant import Entrant
 
 
 class EntrantsCollection:
