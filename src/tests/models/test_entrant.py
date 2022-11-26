@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from random_selector.models.entrant import Entrant
+from src.random_selector.models.entrant import Entrant
 
 
 TEST_ENTRANT_NAME = "tester"
